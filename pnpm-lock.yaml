@@ -131,6 +131,9 @@ importers:
       '@videojs/html':
         specifier: workspace:*
         version: link:../../packages/html
+      '@videojs/hyper':
+        specifier: workspace:*
+        version: link:../../packages/hyper
       '@videojs/icons':
         specifier: workspace:*
         version: link:../../packages/icons
@@ -301,6 +304,34 @@ importers:
       '@videojs/skins':
         specifier: workspace:*
         version: link:../skins
+      happy-dom:
+        specifier: ^18.0.1
+        version: 18.0.1
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.9(@typescript/native-preview@7.0.0-dev.20260421.1)(typescript@6.0.2)
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.0(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/browser-playwright@4.1.0)(@vitest/ui@4.1.0)(happy-dom@18.0.1)(jsdom@27.4.0)(vite@8.0.0(@types/node@24.12.2)(esbuild@0.27.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+
+  packages/hyper:
+    dependencies:
+      '@videojs/core':
+        specifier: workspace:*
+        version: link:../core
+      '@videojs/element':
+        specifier: workspace:*
+        version: link:../element
+      '@videojs/store':
+        specifier: workspace:*
+        version: link:../store
+      '@videojs/utils':
+        specifier: workspace:*
+        version: link:../utils
+    devDependencies:
+      '@testing-library/dom':
+        specifier: ^10.4.0
+        version: 10.4.1
       happy-dom:
         specifier: ^18.0.1
         version: 18.0.1

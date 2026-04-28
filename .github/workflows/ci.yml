@@ -91,6 +91,7 @@ jobs:
           - '@videojs/utils'
           - '@videojs/element'
           - '@videojs/html'
+          - '@videojs/hyper'
           - '@videojs/react'
 
     steps:

@@ -22,6 +22,7 @@
     { "path": "packages/spf/src/dom" },
 
     { "path": "packages/html" },
+    { "path": "packages/hyper" },
     { "path": "packages/react" },
 
     { "path": "packages/cli" }

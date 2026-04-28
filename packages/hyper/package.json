@@ -1,0 +1,77 @@
+{
+  "name": "@videojs/hyper",
+  "type": "module",
+  "version": "10.0.0-beta.0",
+  "description": "Hyperframes-backed custom media element for Video.js 10",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/videojs/v10",
+    "directory": "packages/hyper"
+  },
+  "main": "dist/default/index.js",
+  "module": "dist/default/index.js",
+  "types": "dist/dev/index.d.ts",
+  "sideEffects": [
+    "./dist/*/define/**/*.js"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/dev/index.d.ts",
+      "development": "./dist/dev/index.js",
+      "default": "./dist/default/index.js"
+    },
+    "./video": {
+      "types": "./dist/dev/presets/video.d.ts",
+      "development": "./dist/dev/presets/video.js",
+      "default": "./dist/default/presets/video.js"
+    },
+    "./video/*": {
+      "types": "./dist/dev/define/video/*.d.ts",
+      "development": "./dist/dev/define/video/*.js",
+      "default": "./dist/default/define/video/*.js"
+    },
+    "./media/*": {
+      "types": "./dist/dev/define/media/*.d.ts",
+      "development": "./dist/dev/define/media/*.js",
+      "default": "./dist/default/define/media/*.js"
+    },
+    "./*": {
+      "types": "./dist/dev/define/*.d.ts",
+      "development": "./dist/dev/define/*.js",
+      "default": "./dist/default/define/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "build:watch": "tsdown --watch ./src --no-clean",
+    "dev": "pnpm run build:watch",
+    "test": "vitest run",
+    "clean": "rimraf --glob dist types '*.tsbuildinfo'"
+  },
+  "dependencies": {
+    "@videojs/core": "workspace:*",
+    "@videojs/element": "workspace:*",
+    "@videojs/store": "workspace:*",
+    "@videojs/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "happy-dom": "^18.0.1",
+    "tsdown": "^0.21.9",
+    "vitest": "^4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "media",
+    "player",
+    "html",
+    "hyperframes",
+    "videojs"
+  ]
+}

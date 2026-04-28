@@ -70,6 +70,7 @@ export default defineConfig({
     exclude: [
       '@videojs/core',
       '@videojs/html',
+      '@videojs/hyper',
       '@videojs/icons',
       '@videojs/react',
       '@videojs/spf',

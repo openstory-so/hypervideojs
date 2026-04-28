@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1928, height=1072" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1928px;
+        height: 1072px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      [data-composition-id="main"] {
+        position: relative;
+        width: 1928px;
+        height: 1072px;
+        overflow: hidden;
+        font-family: "Fraunces", Georgia, serif;
+        color: #f5e9d7;
+      }
+
+      #bg-video {
+        position: absolute;
+        inset: 0;
+        width: 1928px;
+        height: 1072px;
+        object-fit: cover;
+      }
+
+      /* Soft bottom-left scrim — only where the message text lives,
+         keeps centre/right of frame untouched. */
+      #scrim {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 60%;
+        height: 55%;
+        pointer-events: none;
+        background: linear-gradient(
+          135deg,
+          rgba(20, 12, 6, 0.55) 0%,
+          rgba(20, 12, 6, 0.28) 45%,
+          rgba(20, 12, 6, 0) 100%
+        );
+        z-index: 2;
+      }
+
+      /* Top-left brand wordmark */
+      .wordmark {
+        position: absolute;
+        top: 56px;
+        left: 72px;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .wordmark .name {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 400;
+        font-size: 38px;
+        letter-spacing: 0.32em;
+        color: #fffcf5;
+        text-transform: uppercase;
+        font-variation-settings: "opsz" 96, "SOFT" 30;
+      }
+      .wordmark .rule {
+        height: 1px;
+        background: #c8924b;
+        transform-origin: left center;
+      }
+      .wordmark .tag {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 400;
+        font-size: 14px;
+        letter-spacing: 0.32em;
+        color: #c8924b;
+        text-transform: uppercase;
+      }
+
+      /* Bottom-left rotating message stack — every message
+         is positioned in the same place so cross-fades land cleanly. */
+      .message {
+        position: absolute;
+        left: 88px;
+        bottom: 110px;
+        max-width: 880px;
+        z-index: 6;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .message .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        font-size: 16px;
+        letter-spacing: 0.42em;
+        color: #c8924b;
+        text-transform: uppercase;
+      }
+      .message .headline {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 300;
+        font-size: 88px;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+        color: #fffcf5;
+        font-variation-settings: "opsz" 144, "SOFT" 50;
+      }
+      .message .headline em {
+        font-style: italic;
+        font-weight: 300;
+        color: #f0d4a0;
+      }
+      .message .sub {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 400;
+        font-size: 20px;
+        letter-spacing: 0.18em;
+        color: #f5e9d7;
+      }
+
+      /* CTA pill on the final beat */
+      .cta-row {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .cta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 30px 18px 32px;
+        border: 1px solid #c8924b;
+        border-radius: 999px;
+        background: rgba(20, 12, 6, 0.35);
+        backdrop-filter: blur(6px);
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        font-size: 20px;
+        letter-spacing: 0.2em;
+        color: #fffcf5;
+        text-transform: uppercase;
+      }
+      .cta-pill .arrow {
+        display: inline-block;
+        transform: translateY(-1px);
+        color: #c8924b;
+        font-size: 22px;
+      }
+      .url-line {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 400;
+        font-size: 18px;
+        letter-spacing: 0.08em;
+        color: #f5e9d7;
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="15.16"
+      data-width="1928"
+      data-height="1072"
+    >
+      <!-- Background video (muted) + separate audio track -->
+      <video
+        id="bg-video"
+        class="clip"
+        data-start="0"
+        data-duration="15.16"
+        data-track-index="0"
+        src="source.mp4"
+        muted
+        playsinline
+      ></video>
+
+      <audio
+        id="bg-audio"
+        class="clip"
+        data-start="0"
+        data-duration="15.16"
+        data-track-index="1"
+        src="source.mp4"
+        data-volume="1"
+      ></audio>
+
+      <!-- Bottom-left soft scrim, lives under the text overlays -->
+      <div id="scrim"></div>
+
+      <!-- Persistent brand wordmark (fades in once, holds to end) -->
+      <div
+        id="wordmark"
+        class="clip wordmark"
+        data-start="0"
+        data-duration="15.16"
+        data-track-index="2"
+      >
+        <div class="name">Kara&nbsp;Design</div>
+        <div id="wordmark-rule" class="rule" style="width: 220px"></div>
+        <div class="tag">Sculpted Objects</div>
+      </div>
+
+      <!-- Beat 1: opening line -->
+      <div
+        id="beat-1"
+        class="clip message"
+        data-start="1.4"
+        data-duration="4.8"
+        data-track-index="3"
+      >
+        <div class="eyebrow">Oak · Hand-carved</div>
+        <div class="headline">Sculpted in <em>solid&nbsp;oak.</em></div>
+      </div>
+
+      <!-- Beat 2: middle line -->
+      <div
+        id="beat-2"
+        class="clip message"
+        data-start="6.0"
+        data-duration="4.8"
+        data-track-index="4"
+      >
+        <div class="eyebrow">Abstract Form</div>
+        <div class="headline">A quiet object, <em>built to&nbsp;hold a&nbsp;room.</em></div>
+      </div>
+
+      <!-- Beat 3: CTA -->
+      <div
+        id="beat-3"
+        class="clip message"
+        data-start="10.6"
+        data-duration="4.56"
+        data-track-index="5"
+      >
+        <div class="eyebrow">Available now · Etsy</div>
+        <div class="headline">The Oak Abstract <em>Sculpture.</em></div>
+        <div class="cta-row">
+          <div class="cta-pill">
+            Shop on Etsy <span class="arrow">→</span>
+          </div>
+        </div>
+        <div class="url-line">etsy.com/au/listing/1900206571</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ── Wordmark: slow reveal ─────────────────────────────────────────
+      tl.from(
+        "#wordmark .name",
+        { y: 14, opacity: 0, duration: 1.1, ease: "sine.out" },
+        0.3
+      );
+      tl.from(
+        "#wordmark-rule",
+        { scaleX: 0, opacity: 0, duration: 0.9, ease: "power2.out" },
+        0.7
+      );
+      tl.from(
+        "#wordmark .tag",
+        { y: 8, opacity: 0, duration: 0.9, ease: "sine.out" },
+        1.0
+      );
+
+      // ── Beat 1 (1.4 → 6.2). Cross-fade out at 5.6 ─────────────────────
+      tl.from(
+        "#beat-1 .eyebrow",
+        { y: 12, opacity: 0, duration: 0.7, ease: "sine.out" },
+        1.6
+      );
+      tl.from(
+        "#beat-1 .headline",
+        { y: 28, opacity: 0, duration: 1.0, ease: "power2.out" },
+        1.8
+      );
+      tl.to(
+        "#beat-1",
+        { opacity: 0, y: -12, duration: 0.7, ease: "sine.in" },
+        5.5
+      );
+
+      // ── Beat 2 (6.0 → 10.8). Cross-fade out at 10.2 ──────────────────
+      tl.from(
+        "#beat-2 .eyebrow",
+        { y: 12, opacity: 0, duration: 0.7, ease: "sine.out" },
+        6.2
+      );
+      tl.from(
+        "#beat-2 .headline",
+        { y: 28, opacity: 0, duration: 1.0, ease: "power2.out" },
+        6.4
+      );
+      tl.to(
+        "#beat-2",
+        { opacity: 0, y: -12, duration: 0.7, ease: "sine.in" },
+        10.1
+      );
+
+      // ── Beat 3 / CTA (10.6 → end) ────────────────────────────────────
+      tl.from(
+        "#beat-3 .eyebrow",
+        { y: 12, opacity: 0, duration: 0.6, ease: "sine.out" },
+        10.8
+      );
+      tl.from(
+        "#beat-3 .headline",
+        { y: 28, opacity: 0, duration: 0.9, ease: "power2.out" },
+        11.0
+      );
+      tl.from(
+        "#beat-3 .cta-pill",
+        { scale: 0.92, opacity: 0, duration: 0.7, ease: "power2.out" },
+        11.6
+      );
+      tl.from(
+        "#beat-3 .url-line",
+        { y: 8, opacity: 0, duration: 0.6, ease: "sine.out" },
+        12.0
+      );
+
+      // ── Final fade: gentle fade to keep brand presence to the very end
+      tl.to(
+        "#scrim",
+        { opacity: 0.85, duration: 1.5, ease: "sine.inOut" },
+        13.5
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

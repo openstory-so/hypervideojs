@@ -23,6 +23,7 @@ export default {
         'element',
         'docs',
         'html',
+        'hyper',
         'icons',
         'packages',
         'plan',

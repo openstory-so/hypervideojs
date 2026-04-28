@@ -53,6 +53,11 @@ export const SOURCES = {
     url: 'https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd',
     type: 'dash',
   },
+  'kara-design': {
+    label: 'Hyper - Kara Design',
+    url: 'composition/index.html',
+    type: 'hyper',
+  },
 } as const;
 
 export type SourceId = keyof typeof SOURCES;

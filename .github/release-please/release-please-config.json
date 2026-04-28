@@ -17,6 +17,7 @@
         "@videojs/core",
         "@videojs/element",
         "@videojs/html",
+        "@videojs/hyper",
         "@videojs/icons",
         "@videojs/react",
         "@videojs/skins",
@@ -47,6 +48,12 @@
     },
     "packages/html": {
       "component": "@videojs/html",
+      "prerelease": true,
+      "prerelease-type": "beta",
+      "versioning": "prerelease"
+    },
+    "packages/hyper": {
+      "component": "@videojs/hyper",
       "prerelease": true,
       "prerelease-type": "beta",
       "versioning": "prerelease"
