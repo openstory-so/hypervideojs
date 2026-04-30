@@ -220,7 +220,7 @@ describe('SequenceVideoMedia', () => {
       expect(seeked).toHaveBeenCalled();
     });
 
-    it('reloads src on the active pool when the inactive pool does not have the target clip', () => {
+    it('loads the target clip onto the inactive pool and swaps when no pool has it preloaded', () => {
       const { media, primary, host } = setup([
         { url: 'a.mp4', duration: 10 },
         { url: 'b.mp4', duration: 5 },
@@ -228,15 +228,45 @@ describe('SequenceVideoMedia', () => {
       ]);
       const helper = host.querySelector('video:nth-of-type(2)') as HTMLVideoElement;
 
-      const setPrimaryTime = vi.fn();
-      Object.defineProperty(primary, 'currentTime', { set: setPrimaryTime, get: () => 0, configurable: true });
+      const setHelperTime = vi.fn();
+      Object.defineProperty(helper, 'currentTime', { set: setHelperTime, get: () => 0, configurable: true });
 
       // Seek directly into clip 2; helper is preloading clip 1 (b.mp4), not c.mp4.
+      // The inactive pool (helper) takes the new src — primary keeps its current
+      // src untouched until the swap, which avoids reload thrash on the active.
       media.currentTime = 17;
 
-      expect(primary.getAttribute('src')).toBe('c.mp4');
-      expect(helper.getAttribute('src')).toBeNull();
-      expect(setPrimaryTime).toHaveBeenCalledWith(2);
+      expect(helper.getAttribute('src')).toBe('c.mp4');
+      expect(primary.getAttribute('src')).toBeNull();
+      expect(helper.style.opacity).toBe('1');
+      expect(primary.style.opacity).toBe('0');
+      expect(setHelperTime).toHaveBeenCalledWith(2);
+    });
+
+    it('keeps playing the new active pool when seeking across clips while playing', async () => {
+      const { media, host } = setup();
+      const helper = host.querySelector('video:nth-of-type(2)') as HTMLVideoElement;
+      const helperPlay = vi.spyOn(helper, 'play');
+
+      await media.play();
+      helperPlay.mockClear();
+
+      media.currentTime = 12;
+
+      expect(helperPlay).toHaveBeenCalled();
+    });
+
+    it('does not start playback when seeking across clips while paused', () => {
+      const { media, primary, host } = setup();
+      const helper = host.querySelector('video:nth-of-type(2)') as HTMLVideoElement;
+      const primaryPlay = vi.spyOn(primary, 'play');
+      const helperPlay = vi.spyOn(helper, 'play');
+
+      // media is paused by default; seek across boundary
+      media.currentTime = 12;
+
+      expect(primaryPlay).not.toHaveBeenCalled();
+      expect(helperPlay).not.toHaveBeenCalled();
     });
   });
 
@@ -311,7 +341,7 @@ describe('SequenceVideoMedia', () => {
       expect(audioPause).not.toHaveBeenCalled();
     });
 
-    it('seeks audio when master time changes', () => {
+    it('seeks audio when master time changes during playback', async () => {
       const { media, host } = setup();
       media.music = 'music.mp3';
       const audio = host.querySelector('audio') as HTMLAudioElement;
@@ -319,16 +349,37 @@ describe('SequenceVideoMedia', () => {
       const setSpy = vi.fn();
       Object.defineProperty(audio, 'currentTime', { set: setSpy, get: () => 0, configurable: true });
 
+      await media.play();
+      setSpy.mockClear();
+
       media.currentTime = 7;
 
       expect(setSpy).toHaveBeenCalledWith(7);
     });
 
-    it('pauses audio when master time exceeds audio duration', () => {
+    it('does not touch audio when seeking while paused', () => {
+      const { media, host } = setup();
+      media.music = 'music.mp3';
+      const audio = host.querySelector('audio') as HTMLAudioElement;
+      Object.defineProperty(audio, 'duration', { value: 100, configurable: true });
+      const setSpy = vi.fn();
+      Object.defineProperty(audio, 'currentTime', { set: setSpy, get: () => 0, configurable: true });
+      const pauseSpy = vi.spyOn(audio, 'pause');
+
+      // media is paused by default
+      media.currentTime = 7;
+
+      expect(setSpy).not.toHaveBeenCalled();
+      expect(pauseSpy).not.toHaveBeenCalled();
+    });
+
+    it('pauses audio when master time exceeds audio duration during playback', async () => {
       const { media, host } = setup();
       media.music = 'music.mp3';
       const audio = host.querySelector('audio') as HTMLAudioElement;
       Object.defineProperty(audio, 'duration', { value: 5, configurable: true });
+
+      await media.play();
       const pauseSpy = vi.spyOn(audio, 'pause');
 
       media.currentTime = 12;

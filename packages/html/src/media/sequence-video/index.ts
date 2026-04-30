@@ -33,7 +33,6 @@ export class SequenceVideo extends MediaAttachMixin(CustomMediaElement('video', 
   connectedCallback(): void {
     invokeSuper(this, 'connectedCallback');
     this.#syncClipsFromSources();
-    this.#syncMusicFromAttribute();
     this.#observeChildren();
   }
 
@@ -42,13 +41,12 @@ export class SequenceVideo extends MediaAttachMixin(CustomMediaElement('video', 
     this.#unobserveChildren();
   }
 
-  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
-    if (name === 'music') {
-      this.#syncMusicFromAttribute();
-      return;
-    }
-    invokeSuper(this, 'attributeChangedCallback', name, oldValue, newValue);
-  }
+  // The `music` attribute flows through `CustomMediaElement`'s
+  // `attributeChangedCallback`: it's listed in `observedAttributes` and the
+  // `SequenceVideoMedia` getter/setter is detected during `#define`, so the
+  // base class wires `music` into `mediaHostAttrToProp` and writes the
+  // attribute value directly to `mediaHost.music`. Overriding here would
+  // create an infinite loop (setter → setAttribute → callback → setter).
 
   #syncClipsFromSources(): void {
     const sources = this.querySelectorAll<HTMLSourceElement>(':scope > source');
@@ -65,11 +63,6 @@ export class SequenceVideo extends MediaAttachMixin(CustomMediaElement('video', 
       clips.push(clip);
     }
     (this as unknown as SequenceVideoMedia).clips = clips;
-  }
-
-  #syncMusicFromAttribute(): void {
-    const value = this.getAttribute('music');
-    (this as unknown as SequenceVideoMedia).music = value && value.length > 0 ? value : null;
   }
 
   #observeChildren(): void {

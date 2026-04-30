@@ -218,17 +218,7 @@ export class SequenceVideoMedia
     this.dispatchEvent(new Event('seeking'));
 
     if (targetIndex !== this.#index) {
-      const inactiveEl = this.#inactiveVideo;
-      const targetUrl = this.#clips[targetIndex]?.url ?? '';
-
-      if (inactiveEl && targetUrl && inactiveEl.getAttribute('src') === targetUrl) {
-        // The inactive pool already has the target clip preloaded — swap
-        // active/inactive instead of forcing the active pool to reload its src.
-        this.#swapActiveTo(targetIndex);
-      } else {
-        this.#index = targetIndex;
-        this.#applyClipsToPool();
-      }
+      this.#switchActiveToClip(targetIndex);
     }
 
     const active = this.#activeVideo;
@@ -240,15 +230,35 @@ export class SequenceVideoMedia
       }
     }
 
-    this.#syncMusicTime(target);
+    // Only chase music position while playing — `play()` already syncs music
+    // when the user resumes, so writing `audio.currentTime` during a paused
+    // scrub just produces audible scrub artifacts on some browsers.
+    if (!this.#paused) {
+      this.#syncMusicTime(target);
+    }
 
     this.#seeking = false;
     this.dispatchEvent(new Event('seeked'));
     this.dispatchEvent(new Event('timeupdate'));
   }
 
-  #swapActiveTo(newIndex: number): void {
+  /**
+   * Move the active pool to a different clip. Always loads the target onto
+   * the *inactive* pool first (skipped if it's already there), then flips the
+   * active key. The active pool's `src` therefore never changes mid-scrub —
+   * which avoids reload thrash during rapid cross-clip scrubbing where every
+   * scrub would otherwise restart the active pool's load cycle.
+   */
+  #switchActiveToClip(newIndex: number): void {
     const previousActive = this.#activeVideo;
+    const inactive = this.#inactiveVideo;
+    const targetUrl = this.#clips[newIndex]?.url ?? '';
+
+    if (inactive && targetUrl && inactive.getAttribute('src') !== targetUrl) {
+      inactive.src = targetUrl;
+      inactive.load?.();
+    }
+
     this.#index = newIndex;
     this.#activeKey = this.#activeKey === 'A' ? 'B' : 'A';
     const newActive = this.#activeVideo;
@@ -265,12 +275,10 @@ export class SequenceVideoMedia
     const newInactive = this.#inactiveVideo;
     const nextUrl = this.#clips[newIndex + 1]?.url ?? '';
     if (newInactive) {
-      if (nextUrl) {
-        if (newInactive.getAttribute('src') !== nextUrl) {
-          newInactive.src = nextUrl;
-          newInactive.load?.();
-        }
-      } else {
+      if (nextUrl && newInactive.getAttribute('src') !== nextUrl) {
+        newInactive.src = nextUrl;
+        newInactive.load?.();
+      } else if (!nextUrl) {
         newInactive.removeAttribute('src');
       }
     }
