@@ -42,6 +42,7 @@ const PRESET_LABELS: Record<Preset, string> = {
   'dash-video': 'DASH Video',
   audio: 'Audio',
   'background-video': 'Background Video',
+  sequence: 'Sequence',
 };
 
 export function Navbar({

@@ -11,4 +11,5 @@ export const PRESETS = [
   'dash-video',
   'audio',
   'background-video',
+  'sequence',
 ] as const;

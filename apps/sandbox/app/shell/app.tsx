@@ -84,6 +84,13 @@ export function App() {
     }
   }, [platform, preset, styling]);
 
+  // Sequence preset only ships an HTML template.
+  useEffect(() => {
+    if (preset === 'sequence' && platform !== 'html') {
+      setPlatform('html');
+    }
+  }, [preset, platform]);
+
   const availableSources =
     preset === 'audio' ? MP4_SOURCE_IDS : preset === 'dash-video' ? DASH_SOURCE_IDS : NON_DASH_SOURCE_IDS;
 
